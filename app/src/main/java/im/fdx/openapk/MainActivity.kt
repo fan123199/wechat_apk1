@@ -10,13 +10,13 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -35,13 +35,18 @@ class MainActivity : ComponentActivity() {
 
         val data = intent.data
         //content://com.tencent.mm.external.fileprovider/external/Android/data/com.tencent.mm/MicroMsg/Download/F-Droid.apk.1
-        data?.let { installApk(this, it) }
+
 
         setContent {
             OpenApkTheme {
                 // A surface container using the 'background' color from the theme
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Spacer(modifier = Modifier.size(1.dp))
+                    Column( modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                        Text(modifier = Modifier.padding(16.dp), text = "Installing")
+                    }
+                    LaunchedEffect(key1 = true,  block = {
+                        data?.let { installApk(this@MainActivity, it) }
+                    } )
                 }
             }
         }
@@ -56,7 +61,11 @@ class MainActivity : ComponentActivity() {
 //        )
         Log.i(TAG, "installApk: ${uri.path}")
         saveFile(this, uri)
-        val uriTmp = FileProvider.getUriForFile(context, BuildConfig.APPLICATION_ID + ".provider",  File(context.filesDir,"temp.apk"))
+        val uriTmp = FileProvider.getUriForFile(
+            context,
+            BuildConfig.APPLICATION_ID + ".provider",
+            File(context.filesDir, "temp.apk")
+        )
         val install = Intent(Intent.ACTION_VIEW)
         install.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
         install.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP)
@@ -77,10 +86,10 @@ class MainActivity : ComponentActivity() {
     }
 
     fun saveFile(context: Context, uri: Uri) {
-            context.applicationContext.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
-                FileInputStream(fd.fileDescriptor).use { fis ->
-                    val f = File( context.filesDir,"temp.apk")
-                    val fos = f.outputStream()
+        context.applicationContext.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
+            FileInputStream(fd.fileDescriptor).use { fis ->
+                val f = File(context.filesDir, "temp.apk")
+                val fos = f.outputStream()
 //                    val bytes = ByteArray(1024 * 1024)
 //                    var readCount: Int
 //                    while (true) {
@@ -88,15 +97,15 @@ class MainActivity : ComponentActivity() {
 //                        if (readCount == -1) break
 //                        fos.write(bytes, 0, readCount)
 //                    }
-                    val readBytes = fis.readBytes()
-                    Log.i(TAG, readBytes.size.toString())
-                    fos.write(readBytes)
+                val readBytes = fis.readBytes()
+                Log.i(TAG, readBytes.size.toString())
+                fos.write(readBytes)
 
-                    fos.flush()
-                    fos.close()
-                    Log.i(TAG, "Success")
-                }
+                fos.flush()
+                fos.close()
+                Log.i(TAG, "Success")
             }
+        }
     }
 
 }
