@@ -10,18 +10,15 @@ import android.provider.MediaStore
 import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.layout.*
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Surface
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.core.content.FileProvider
-import im.fdx.openapk.ui.theme.OpenApkTheme
 import java.io.File
 import java.io.FileInputStream
 
@@ -36,23 +33,17 @@ class MainActivity : ComponentActivity() {
         val data = intent.data
         //content://com.tencent.mm.external.fileprovider/external/Android/data/com.tencent.mm/MicroMsg/Download/F-Droid.apk.1
 
-
         setContent {
-            OpenApkTheme {
-                // A surface container using the 'background' color from the theme
-                Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
-                    Column( modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
-                        Text(modifier = Modifier.padding(16.dp), text = "Installing")
-                    }
-                    LaunchedEffect(key1 = true,  block = {
-                        data?.let { installApk(this@MainActivity, it) }
-                    } )
+                Column(modifier = Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+                    Text(modifier = Modifier.padding(16.dp), text = "Installing")
                 }
-            }
+                LaunchedEffect(key1 = true, block = {
+                    data?.let { installApk(this@MainActivity, it) }
+                })
         }
     }
 
-    fun installApk(context: Context, uri: Uri) {
+    private fun installApk(context: Context, uri: Uri) {
 
 //        val contentUri = FileProvider.getUriForFile(
 //            context,
@@ -85,7 +76,7 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    fun saveFile(context: Context, uri: Uri) {
+    private fun saveFile(context: Context, uri: Uri) {
         context.applicationContext.contentResolver.openFileDescriptor(uri, "r")?.use { fd ->
             FileInputStream(fd.fileDescriptor).use { fis ->
                 val f = File(context.filesDir, "temp.apk")
